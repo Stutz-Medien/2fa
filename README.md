@@ -42,7 +42,7 @@ composer require stutzmedien/2fa
 
 ### Project Structure
 
-```
+```text
 andromeda-2fa.php          # Plugin bootstrap
 inc/                       # Core plugin classes
 ├── class-user-settings.php
