@@ -90,4 +90,4 @@ vendor/bin/phpunit -v
 
 ## 📄 License
 
-MIT License. See `LICENSE` file for details.
+This project is released under the [MIT License](https://opensource.org/licenses/MIT). See `LICENSE` file for details.
