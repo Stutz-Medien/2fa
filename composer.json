@@ -1,5 +1,6 @@
 {
 	"name": "stutzmedien/2fa",
+	"type": "wordpress-plugin",
 	"description": "Authenticator compatible 2FA for WordPress",
 	"version": "26.0.0",
 	"license": "MIT",

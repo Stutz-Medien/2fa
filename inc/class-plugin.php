@@ -25,6 +25,5 @@ class Plugin {
 
 	private function initialize_components() {
 		// Initialization logic for the plugin components goes here.
-		wp_die( '2FA Plugin Initialized' );
 	}
 }
