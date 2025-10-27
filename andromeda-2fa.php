@@ -18,15 +18,16 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-// Autoload (Composer)
 $autoload_path = __DIR__ . '/vendor/autoload.php';
 if ( file_exists( $autoload_path ) ) {
 	require_once $autoload_path;
 }
 
+require_once __DIR__ . '/inc/class-plugin.php';
+
 add_action(
 	'plugins_loaded',
 	function () {
-		new Andromeda\TwoFactorAuth\Plugin();
+		new \Andromeda\TwoFactorAuth\Plugin();
 	}
 );
