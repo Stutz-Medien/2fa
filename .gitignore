@@ -5,6 +5,10 @@ vendor/
 *.log
 *.cache
 
+# Testing
+coverage/
+.phpunit.result.cache
+
 # OS
 .DS_Store
 Thumbs.db
