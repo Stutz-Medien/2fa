@@ -1,0 +1,14 @@
+# Composer
+vendor/
+
+# PHP
+*.log
+*.cache
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local

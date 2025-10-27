@@ -1,0 +1,31 @@
+{
+	"name": "stutzmedien/2fa",
+	"description": "Authenticator compatible 2FA for WordPress",
+	"version": "26.0.0",
+	"license": "MIT",
+	"autoload": {
+		"psr-4": {
+			"Andromeda\\TwoFactorAuth\\": "inc/"
+		}
+	},
+	"minimum-stability": "alpha",
+	"require": {
+		"spomky-labs/otphp": "^11.3",
+		"endroid/qr-code": "^6.0"
+	},
+	"require-dev": {
+		"squizlabs/php_codesniffer": "^3.10",
+		"wp-coding-standards/wpcs": "^3.1",
+		"phpcsstandards/phpcsutils": "^1.0",
+		"phpcompatibility/php-compatibility": "^9.3"
+	},
+	"scripts": {
+		"lint": "phpcs --standard=phpcs.xml",
+		"lint:fix": "phpcbf --standard=phpcs.xml"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	}
+}
