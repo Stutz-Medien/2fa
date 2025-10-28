@@ -29,6 +29,13 @@ class LoginHandler {
 	private $user_settings;
 
 	/**
+	 * Recovery Manager instance.
+	 *
+	 * @var RecoveryManager|null
+	 */
+	private $recovery_manager;
+
+	/**
 	 * Transient key prefix for storing authentication data.
 	 */
 	const TRANSIENT_PREFIX = 'andromeda_2fa_auth_';
@@ -41,12 +48,14 @@ class LoginHandler {
 	/**
 	 * Constructor.
 	 *
-	 * @param TotpManager  $totp_manager  TOTP Manager instance.
-	 * @param UserSettings $user_settings User Settings instance.
+	 * @param TotpManager          $totp_manager  TOTP Manager instance.
+	 * @param UserSettings         $user_settings User Settings instance.
+	 * @param RecoveryManager|null $recovery_manager Recovery Manager instance (optional).
 	 */
-	public function __construct( TotpManager $totp_manager, UserSettings $user_settings ) {
-		$this->totp_manager  = $totp_manager;
-		$this->user_settings = $user_settings;
+	public function __construct( TotpManager $totp_manager, UserSettings $user_settings, ?RecoveryManager $recovery_manager = null ) {
+		$this->totp_manager     = $totp_manager;
+		$this->user_settings    = $user_settings;
+		$this->recovery_manager = $recovery_manager ?? new RecoveryManager();
 
 		add_filter( 'authenticate', array( $this, 'check_2fa_required' ), 30, 3 );
 		add_action( 'login_form', array( $this, 'render_2fa_field' ) );
@@ -178,25 +187,37 @@ class LoginHandler {
 		$user_id = $auth_data['user_id'];
 		$secret  = $this->user_settings->get_user_secret( $user_id );
 
-		if ( ! $this->totp_manager->verify_code( $secret, $code ) ) {
-			return new \WP_Error(
-				'2fa_invalid_code',
-				sprintf(
-					'<strong>%s</strong><br>%s',
-					__( 'Invalid Code', 'andromeda-2fa' ),
-					__( 'The authentication code is incorrect.', 'andromeda-2fa' )
-				)
-			);
+		if ( $this->totp_manager->verify_code( $secret, $code ) ) {
+			$this->clear_auth_data();
+
+			$user = get_user_by( 'id', $user_id );
+			if ( ! $user ) {
+				return new \WP_Error( 'invalid_user', __( 'Invalid user.', 'andromeda-2fa' ) );
+			}
+
+			return $user;
 		}
 
-		$this->clear_auth_data();
+		if ( $this->recovery_manager && $this->recovery_manager->consume_recovery_code( (int) $user_id, (string) $code ) ) {
+			$this->clear_auth_data();
 
-		$user = get_user_by( 'id', $user_id );
-		if ( ! $user ) {
-			return new \WP_Error( 'invalid_user', __( 'Invalid user.', 'andromeda-2fa' ) );
+			$user = get_user_by( 'id', $user_id );
+			if ( ! $user ) {
+				return new \WP_Error( 'invalid_user', __( 'Invalid user.', 'andromeda-2fa' ) );
+			}
+
+			return $user;
 		}
 
-		return $user;
+		// Both TOTP and recovery code failed.
+		return new \WP_Error(
+			'2fa_invalid_code',
+			sprintf(
+				'<strong>%s</strong><br>%s',
+				__( 'Invalid Code', 'andromeda-2fa' ),
+				__( 'The authentication code is incorrect.', 'andromeda-2fa' )
+			)
+		);
 	}
 
 	/**
@@ -214,24 +235,24 @@ class LoginHandler {
 		
 		<p class="andromeda-2fa-info">
 			<strong><?php esc_html_e( 'Two-Factor Authentication', 'andromeda-2fa' ); ?></strong><br>
-			<?php esc_html_e( 'Please enter your authentication code.', 'andromeda-2fa' ); ?>
+			<?php esc_html_e( 'Please enter your authentication code or a recovery code.', 'andromeda-2fa' ); ?>
 		</p>
 		
 		<p class="andromeda-2fa-code-field">
 			<label for="andromeda_2fa_code">
-				<?php esc_html_e( 'Authentication Code', 'andromeda-2fa' ); ?><br />
-				<input type="text" 
-					name="andromeda_2fa_code" 
-					id="andromeda_2fa_code" 
-					class="input" 
-					maxlength="6" 
-					pattern="[0-9]{6}"
-					autocomplete="one-time-code"
-					inputmode="numeric"
-					placeholder="<?php esc_attr_e( '000000', 'andromeda-2fa' ); ?>"
-					autofocus
-					required />
+				<?php esc_html_e( 'Authentication Code', 'andromeda-2fa' ); ?>
 			</label>
+			<input type="text" 
+				name="andromeda_2fa_code" 
+				id="andromeda_2fa_code" 
+				class="input" 
+				maxlength="36" 
+				pattern="(\\d{6})|([A-Za-z0-9-]{12,36})"
+				autocomplete="one-time-code"
+				inputmode="text"
+				placeholder="<?php esc_attr_e( '000000', 'andromeda-2fa' ); ?>"
+				autofocus
+				required />
 		</p>
 		<?php
 	}
@@ -244,7 +265,7 @@ class LoginHandler {
 
 		?>
 		<style>
-			#loginform > p:not(.andromeda-2fa-code-field):not(.submit),
+			#loginform > p:not(.andromeda-2fa-code-field):not(.submit):not(.andromeda-2fa-info),
 			#loginform .user-pass-wrap,
 			#loginform .forgetmenot {
 				display: none !important;
@@ -274,6 +295,10 @@ class LoginHandler {
 				width: 1px;
 				height: 1px;
 			}
+
+			.andromeda-2fa-info {
+				margin-bottom: 20px !important;
+			}
 		</style>
 		
 		<script>
@@ -287,7 +312,14 @@ class LoginHandler {
 					const value = event.target.value;
 
 					if (value.length === 6 && /^\d{6}$/.test(value)) {
-						setTimeout(function() {
+						setTimeout(() => {
+							document.querySelector('#loginform').submit();
+						}, 300);
+					}
+					
+					const normalizedValue = value.replace(/[^A-Za-z0-9]/g, '');
+					if (normalizedValue.length === 12 && /^[A-Za-z0-9]{12}$/.test(normalizedValue)) {
+						setTimeout(() => {
 							document.querySelector('#loginform').submit();
 						}, 300);
 					}

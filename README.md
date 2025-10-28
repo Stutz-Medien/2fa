@@ -71,6 +71,12 @@ vendor/bin/phpunit -v
 **Bootstrap:** `tests/bootstrap.php`  
 **Autoloading:** PSR-4 via composer for `inc/` directory
 
+### Code Coverage
+
+- Requires Xdebug installed and enabled.
+- The coverage script sets `XDEBUG_MODE=coverage` automatically.
+- After `composer test:coverage`, open the HTML report in the `coverage/` directory.
+
 ## ⚙️ Technical Details
 
 ### Data Storage

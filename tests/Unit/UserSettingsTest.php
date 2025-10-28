@@ -139,8 +139,9 @@ class UserSettingsTest extends TestCase {
 		$user    = (object) [ 'ID' => $user_id, 'user_email' => 'user@example.com' ];
 
 		// WordPress helper functions stubs
-		Functions\when( 'esc_html_e' )->alias( function( $text ) { echo $text; } );
-		Functions\when( 'esc_attr_e' )->alias( function( $text ) { echo $text; } );
+        Functions\when( 'esc_html_e' )->alias( function( $text ) { echo $text; } );
+        Functions\when( 'esc_attr_e' )->alias( function( $text ) { echo $text; } );
+        Functions\when( '__' )->returnArg();
 		Functions\when( 'esc_html' )->returnArg();
 		Functions\when( 'esc_attr' )->returnArg();
 		Functions\when( 'wp_nonce_field' )->justReturn( null );
@@ -193,8 +194,9 @@ class UserSettingsTest extends TestCase {
 		$user_id = 11;
 		$user    = (object) [ 'ID' => $user_id, 'user_email' => 'user2@example.com' ];
 
-		Functions\when( 'esc_html_e' )->alias( function( $text ) { echo $text; } );
-		Functions\when( 'esc_attr_e' )->alias( function( $text ) { echo $text; } );
+        Functions\when( 'esc_html_e' )->alias( function( $text ) { echo $text; } );
+        Functions\when( 'esc_attr_e' )->alias( function( $text ) { echo $text; } );
+        Functions\when( '__' )->returnArg();
 		Functions\when( 'esc_html' )->returnArg();
 		Functions\when( 'esc_attr' )->returnArg();
 		Functions\when( 'wp_nonce_field' )->justReturn( null );
