@@ -4,6 +4,7 @@
  *
  * @package stutzmedien/2fa
  * @since   26.0.0
+ * @license GPL-2.0-or-later
  */
 
 namespace Andromeda\TwoFactorAuth;

@@ -4,6 +4,7 @@
  *
  * @package       stutzmedien/2fa
  * @author        Stutz Medien AG
+ * @license       GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name:   Andromeda Two‑Factor Authentication
