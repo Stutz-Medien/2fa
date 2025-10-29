@@ -9,6 +9,7 @@ require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 
 define( 'ABSPATH', '/tmp/wordpress/' );
 
+require_once dirname( __DIR__ ) . '/inc/helpers.php';
 require_once dirname( __DIR__ ) . '/inc/class-totp-manager.php';
 require_once dirname( __DIR__ ) . '/inc/class-qr-code-generator.php';
 require_once dirname( __DIR__ ) . '/inc/class-recovery-manager.php';

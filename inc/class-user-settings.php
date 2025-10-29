@@ -245,16 +245,18 @@ class UserSettings {
 	 * @param int $user_id User ID.
 	 */
 	public function save_user_profile_fields( $user_id ) {
-		if ( ! isset( $_POST['andromeda_2fa_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['andromeda_2fa_nonce'] ) ), 'andromeda_2fa_settings' ) ) return;
+		if ( ! \andromeda_2fa_verify_nonce( 'andromeda_2fa_nonce', 'andromeda_2fa_settings' ) ) return;
 
 		if ( ! current_user_can( 'edit_user', $user_id ) ) return;
 
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified via andromeda_2fa_verify_nonce above
 		$wants_enabled = isset( $_POST['andromeda_2fa_enabled'] );
 		$secret        = isset( $_POST['andromeda_2fa_secret'] ) ? sanitize_text_field( wp_unslash( $_POST['andromeda_2fa_secret'] ) ) : '';
 		$code          = isset( $_POST['andromeda_2fa_verify_code'] ) ? sanitize_text_field( wp_unslash( $_POST['andromeda_2fa_verify_code'] ) ) : '';
 		$is_enabled    = $this->is_enabled_for_user( $user_id );
 
 		if ( isset( $_POST['andromeda_2fa_regen_codes'] ) && $is_enabled && $this->recovery_manager ) {
+			// phpcs:enable WordPress.Security.NonceVerification.Missing
 			$codes = $this->recovery_manager->generate_recovery_codes();
 			$this->recovery_manager->store_recovery_codes( (int) $user_id, $codes['hashed'] );
 

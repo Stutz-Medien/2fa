@@ -171,7 +171,18 @@ class LoginHandler {
 	 * @return \WP_User|\WP_Error
 	 */
 	private function verify_2fa_code( $auth_data ) {
-		$code = isset( $_POST['andromeda_2fa_code'] ) ? sanitize_text_field( wp_unslash( $_POST['andromeda_2fa_code'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( ! \andromeda_2fa_verify_nonce( 'andromeda_2fa_nonce', 'andromeda_2fa_verify' ) ) {
+			return new \WP_Error(
+				'2fa_invalid_nonce',
+				sprintf(
+					'<strong>%s</strong><br>%s',
+					__( 'Nonce Error', 'andromeda-2fa' ),
+					__( 'Invalid security token. Please try again.', 'andromeda-2fa' )
+				)
+			);
+		}
+
+		$code = isset( $_POST['andromeda_2fa_code'] ) ? sanitize_text_field( wp_unslash( $_POST['andromeda_2fa_code'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified via andromeda_2fa_verify_nonce above
 
 		if ( empty( $code ) ) {
 			return new \WP_Error(
@@ -232,6 +243,7 @@ class LoginHandler {
 		?>
 		<input type="hidden" name="log" value="<?php echo esc_attr( $auth_data['username'] ); ?>" autocomplete="username" />
 		<input type="hidden" name="pwd" value="<?php echo esc_attr( $auth_data['password'] ); ?>" autocomplete="current-password" />
+		<?php wp_nonce_field( 'andromeda_2fa_verify', 'andromeda_2fa_nonce' ); ?>
 		
 		<p class="andromeda-2fa-info">
 			<strong><?php esc_html_e( 'Two-Factor Authentication', 'andromeda-2fa' ); ?></strong><br>

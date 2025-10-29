@@ -1,12 +1,12 @@
 <?php
 /**
- *  * Andromeda 2FA - Two Factor Authentication for WordPress
+ *  * Andromeda Two‑Factor Authentication
  *
  * @package       stutzmedien/2fa
  * @author        Stutz Medien AG
  *
  * @wordpress-plugin
- * Plugin Name:   2FA - Two Factor Authentication for WordPress
+ * Plugin Name:   Andromeda Two‑Factor Authentication
  * Plugin URI:    https://github.com/Stutz-Medien/2fa
  * Description:   Adds Two Factor Authentication (2FA) to your WordPress login process to enhance security.
  * Version:       26.0.0

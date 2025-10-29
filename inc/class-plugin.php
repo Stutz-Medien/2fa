@@ -62,16 +62,14 @@ class Plugin {
 	 * Define plugin constants.
 	 */
 	private function define_constants() {
-		define( 'ANDROMEDA_2FA_VERSION', '26.0.0' );
 		define( 'ANDROMEDA_2FA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-		define( 'ANDROMEDA_2FA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-		define( 'ANDROMEDA_2FA_TEXT_DOMAIN', 'andromeda-2fa' );
 	}
 
 	/**
 	 * Load required dependencies.
 	 */
 	private function load_dependencies() {
+		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'helpers.php';
 		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'class-totp-manager.php';
 		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'class-qr-code-generator.php';
 		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'class-recovery-manager.php';
