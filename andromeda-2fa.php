@@ -10,7 +10,7 @@
  * Plugin URI:    https://github.com/Stutz-Medien/2fa
  * Description:   Adds Two Factor Authentication (2FA) to your WordPress login process to enhance security.
  * Version:       26.0.0
- * Author:        Stutz Medien
+ * Author:        Stutz Medien AG
  * Author URI:    https://stutz-medien.ch/
  * Text Domain:   andromeda-2fa
  * Domain Path:   /lang
