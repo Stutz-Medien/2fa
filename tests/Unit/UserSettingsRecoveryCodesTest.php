@@ -52,6 +52,7 @@ class UserSettingsRecoveryCodesTest extends TestCase {
 		Functions\when( 'esc_attr' )->alias( function( $text ) { return htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' ); } );
 		Functions\when( 'wp_nonce_field' )->justReturn( null );
 		Functions\when( 'checked' )->alias( function( $checked ) { if ( $checked ) echo 'checked="checked"'; } );
+		Functions\when( 'get_current_user_id' )->justReturn( $user_id );
 
 		Functions\expect( 'get_user_meta' )
 			->once()
@@ -126,6 +127,7 @@ class UserSettingsRecoveryCodesTest extends TestCase {
 		Functions\when( 'current_user_can' )->alias( function () { return true; } );
 		Functions\when( 'sanitize_text_field' )->returnArg();
 		Functions\when( 'wp_unslash' )->returnArg();
+		Functions\when( 'get_current_user_id' )->justReturn( $user_id );
 
 		Functions\expect( 'get_user_meta' )
 			->once()
@@ -161,4 +163,3 @@ class UserSettingsRecoveryCodesTest extends TestCase {
 		unset( $_POST['andromeda_2fa_nonce'], $_POST['andromeda_2fa_enabled'], $_POST['andromeda_2fa_secret'], $_POST['andromeda_2fa_regen_codes'] );
 	}
 }
-

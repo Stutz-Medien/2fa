@@ -5,14 +5,15 @@ A lightweight WordPress plugin that adds Time‑based One‑Time Password (TOTP)
 ## ✨ Features
 
 - **TOTP Authentication** – Secure time-based one-time passwords
-- **User Control** – Per-user enable/disable functionality  
+- **Recovery Codes** – One-time fallback codes with regenerate and download options
+- **User Control** – Per-user enable/disable functionality
 - **Quick Setup** – QR code provisioning for easy configuration
-- **WordPress Integration** – Seamless user profile integration
+- **Login Flow Integration** – 2FA challenge injected into wp-login
 - **Tested** – Comprehensive PHPUnit test suite
 
 ## 📋 Requirements
 
-- **PHP:** 8.3 or higher
+- **PHP:** 8.4 or higher
 - **WordPress:** 6.8 or higher  
 - **Composer:** For dependency management
 
@@ -37,6 +38,8 @@ composer require stutzmedien/2fa
 3. **Scan the QR code** with your authenticator app
 4. **Enter the 6-digit code** to verify setup
 5. **Check "Enable 2FA"** and save your profile
+6. **Store your recovery codes** in a safe place
+7. Use **Generate Recovery Codes** when you run out
 
 ## 🛠️ Development
 
@@ -45,10 +48,16 @@ composer require stutzmedien/2fa
 ```text
 andromeda-2fa.php          # Plugin bootstrap
 inc/                       # Core plugin classes
+├── helpers.php
 ├── class-user-settings.php
 ├── class-totp-manager.php  
 ├── class-qr-code-generator.php
+├── class-recovery-manager.php
 └── class-login-handler.php
+└── class-plugin.php
+src/                       # Admin/login assets
+├── css/
+└── js/
 tests/                     # PHPUnit tests
 └── Unit/                  # Test suites
 ```
@@ -62,15 +71,6 @@ tests/                     # PHPUnit tests
 | `composer lint` | Check code style |
 | `composer lint:fix` | Auto-fix code style issues |
 
-### Manual Testing
-
-```bash
-vendor/bin/phpunit -v
-```
-
-**Bootstrap:** `tests/bootstrap.php`  
-**Autoloading:** PSR-4 via composer for `inc/` directory
-
 ### Code Coverage
 
 - Requires Xdebug installed and enabled.
@@ -79,11 +79,19 @@ vendor/bin/phpunit -v
 
 ## ⚙️ Technical Details
 
+### Login Flow
+
+- A 2FA challenge is triggered after primary credential validation for users with 2FA enabled.
+- The login form accepts either a 6-digit TOTP or a recovery code.
+- Challenge state is tracked via a short-lived cookie (`andromeda_2fa_token`) and transient (`andromeda_2fa_auth_{token}`).
+
 ### Data Storage
 
 - **Secret Key:** `andromeda_2fa_secret` (user meta)
 - **Status:** `andromeda_2fa_enabled` (user meta)
+- **Recovery Codes:** `andromeda_2fa_recovery_codes` (user meta, hashed)
 - **QR Codes:** Generated as data URIs (no file system writes)
+- **Recovery Codes Preview:** transient `andromeda_2fa_plain_codes_{user_id}` (shown once)
 
 ### Dependencies
 

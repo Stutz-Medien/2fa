@@ -149,6 +149,7 @@ class UserSettingsTest extends TestCase {
 		Functions\when( 'esc_attr' )->returnArg();
 		Functions\when( 'wp_nonce_field' )->justReturn( null );
 		Functions\when( 'checked' )->alias( function( $checked ) { if ( $checked ) echo 'checked="checked"'; } );
+		Functions\when( 'get_current_user_id' )->justReturn( $user_id );
 
 		// User meta lookups: disabled and no secret
 		Functions\expect( 'get_user_meta' )
@@ -204,6 +205,7 @@ class UserSettingsTest extends TestCase {
 		Functions\when( 'esc_attr' )->returnArg();
 		Functions\when( 'wp_nonce_field' )->justReturn( null );
 		Functions\when( 'checked' )->alias( function( $checked ) { if ( $checked ) echo 'checked="checked"'; } );
+		Functions\when( 'get_current_user_id' )->justReturn( $user_id );
 
 		Functions\expect( 'get_user_meta' )
 			->once()
@@ -253,6 +255,7 @@ class UserSettingsTest extends TestCase {
 		Functions\when( 'sanitize_text_field' )->returnArg();
 		Functions\when( 'wp_unslash' )->returnArg();
 		Functions\when( '__' )->returnArg();
+		Functions\when( 'get_current_user_id' )->justReturn( $user_id );
 
 		// is_enabled_for_user -> false
 		Functions\expect( 'get_user_meta' )
@@ -296,6 +299,7 @@ class UserSettingsTest extends TestCase {
 		Functions\when( 'sanitize_text_field' )->returnArg();
 		Functions\when( 'wp_unslash' )->returnArg();
 		Functions\when( '__' )->returnArg();
+		Functions\when( 'get_current_user_id' )->justReturn( $user_id );
 
 		// is_enabled_for_user -> false
 		Functions\expect( 'get_user_meta' )
@@ -342,6 +346,7 @@ class UserSettingsTest extends TestCase {
 		Functions\when( 'current_user_can' )->alias( function () { return true; } );
 		Functions\when( 'sanitize_text_field' )->returnArg();
 		Functions\when( 'wp_unslash' )->returnArg();
+		Functions\when( 'get_current_user_id' )->justReturn( $user_id );
 
 		Functions\expect( 'get_user_meta' )
 			->once()
@@ -377,6 +382,7 @@ class UserSettingsTest extends TestCase {
 		Functions\when( 'current_user_can' )->alias( function () { return true; } );
 		Functions\when( 'sanitize_text_field' )->returnArg();
 		Functions\when( 'wp_unslash' )->returnArg();
+		Functions\when( 'get_current_user_id' )->justReturn( $user_id );
 
 		Functions\expect( 'get_user_meta' )
 			->once()
@@ -406,6 +412,7 @@ class UserSettingsTest extends TestCase {
 		Functions\when( 'current_user_can' )->alias( function () { return true; } );
 		Functions\when( 'sanitize_text_field' )->returnArg();
 		Functions\when( 'wp_unslash' )->returnArg();
+		Functions\when( 'get_current_user_id' )->justReturn( $user_id );
 
 		Functions\expect( 'get_user_meta' )
 			->once()

@@ -192,7 +192,7 @@ class LoginHandler {
 		$this->store_auth_data( $user->ID, $username );
 
 		wp_safe_redirect( add_query_arg( 'andromeda_2fa', '1', wp_login_url() ) );
-		exit;
+		exit; // @codeCoverageIgnore
 	}
 
 	/**
