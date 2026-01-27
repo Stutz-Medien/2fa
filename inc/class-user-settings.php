@@ -129,6 +129,8 @@ class UserSettings {
 	 * @param \WP_User $user The user object.
 	 */
 	public function render_user_profile_fields( $user ) {
+		if ( get_current_user_id() !== $user->ID ) return;
+
 		$is_enabled = $this->is_enabled_for_user( $user->ID );
 		$secret     = $this->get_user_secret( $user->ID );
 
@@ -246,6 +248,8 @@ class UserSettings {
 	 * @param int $user_id User ID.
 	 */
 	public function save_user_profile_fields( $user_id ) {
+		if ( get_current_user_id() !== $user_id ) return;
+
 		if ( ! \andromeda_2fa_verify_nonce( 'andromeda_2fa_nonce', 'andromeda_2fa_settings' ) ) return;
 
 		if ( ! current_user_can( 'edit_user', $user_id ) ) return;
