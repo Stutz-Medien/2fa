@@ -26,6 +26,9 @@ class UserSettingsTest extends TestCase {
 		parent::setUp();
 		\Brain\Monkey\setUp();
 
+		$GLOBALS['__andromeda_test_transients'] = array();
+		$GLOBALS['__andromeda_test_transient_calls'] = array();
+
 		$this->totp_manager = Mockery::mock( TotpManager::class );
 		$this->qr_generator = Mockery::mock( QrCodeGenerator::class );
 		$this->user_settings = new UserSettings( $this->totp_manager, $this->qr_generator );
@@ -146,6 +149,7 @@ class UserSettingsTest extends TestCase {
 		Functions\when( 'esc_attr' )->returnArg();
 		Functions\when( 'wp_nonce_field' )->justReturn( null );
 		Functions\when( 'checked' )->alias( function( $checked ) { if ( $checked ) echo 'checked="checked"'; } );
+		Functions\when( 'get_current_user_id' )->justReturn( $user_id );
 
 		// User meta lookups: disabled and no secret
 		Functions\expect( 'get_user_meta' )
@@ -201,6 +205,7 @@ class UserSettingsTest extends TestCase {
 		Functions\when( 'esc_attr' )->returnArg();
 		Functions\when( 'wp_nonce_field' )->justReturn( null );
 		Functions\when( 'checked' )->alias( function( $checked ) { if ( $checked ) echo 'checked="checked"'; } );
+		Functions\when( 'get_current_user_id' )->justReturn( $user_id );
 
 		Functions\expect( 'get_user_meta' )
 			->once()
@@ -250,6 +255,7 @@ class UserSettingsTest extends TestCase {
 		Functions\when( 'sanitize_text_field' )->returnArg();
 		Functions\when( 'wp_unslash' )->returnArg();
 		Functions\when( '__' )->returnArg();
+		Functions\when( 'get_current_user_id' )->justReturn( $user_id );
 
 		// is_enabled_for_user -> false
 		Functions\expect( 'get_user_meta' )
@@ -293,6 +299,7 @@ class UserSettingsTest extends TestCase {
 		Functions\when( 'sanitize_text_field' )->returnArg();
 		Functions\when( 'wp_unslash' )->returnArg();
 		Functions\when( '__' )->returnArg();
+		Functions\when( 'get_current_user_id' )->justReturn( $user_id );
 
 		// is_enabled_for_user -> false
 		Functions\expect( 'get_user_meta' )
@@ -339,6 +346,7 @@ class UserSettingsTest extends TestCase {
 		Functions\when( 'current_user_can' )->alias( function () { return true; } );
 		Functions\when( 'sanitize_text_field' )->returnArg();
 		Functions\when( 'wp_unslash' )->returnArg();
+		Functions\when( 'get_current_user_id' )->justReturn( $user_id );
 
 		Functions\expect( 'get_user_meta' )
 			->once()
@@ -374,6 +382,7 @@ class UserSettingsTest extends TestCase {
 		Functions\when( 'current_user_can' )->alias( function () { return true; } );
 		Functions\when( 'sanitize_text_field' )->returnArg();
 		Functions\when( 'wp_unslash' )->returnArg();
+		Functions\when( 'get_current_user_id' )->justReturn( $user_id );
 
 		Functions\expect( 'get_user_meta' )
 			->once()
@@ -403,6 +412,7 @@ class UserSettingsTest extends TestCase {
 		Functions\when( 'current_user_can' )->alias( function () { return true; } );
 		Functions\when( 'sanitize_text_field' )->returnArg();
 		Functions\when( 'wp_unslash' )->returnArg();
+		Functions\when( 'get_current_user_id' )->justReturn( $user_id );
 
 		Functions\expect( 'get_user_meta' )
 			->once()
@@ -417,5 +427,91 @@ class UserSettingsTest extends TestCase {
 		$this->user_settings->save_user_profile_fields( $user_id );
 
 		unset( $_POST['andromeda_2fa_nonce'], $_POST['andromeda_2fa_secret'] );
+	}
+
+	public function test_enqueue_profile_scripts_enqueues_on_profile_screen() {
+		$screen = (object) [ 'id' => 'profile' ];
+
+		Functions\expect( 'get_current_screen' )
+			->once()
+			->andReturn( $screen );
+
+		Functions\expect( 'wp_enqueue_style' )
+			->once()
+			->with(
+				'andromeda-2fa-profile',
+				\Mockery::type( 'string' ),
+				array(),
+				\Mockery::type( 'string' )
+			);
+
+		Functions\expect( 'wp_enqueue_script' )
+			->once()
+			->with(
+				'andromeda-2fa-profile',
+				\Mockery::type( 'string' ),
+				array( 'clipboard' ),
+				\Mockery::type( 'string' ),
+				true
+			);
+
+		Functions\when( 'plugins_url' )->returnArg();
+
+		$this->user_settings->enqueue_profile_scripts();
+	}
+
+	public function test_enqueue_profile_scripts_enqueues_on_user_edit_screen() {
+		$screen = (object) [ 'id' => 'user-edit' ];
+
+		Functions\expect( 'get_current_screen' )
+			->once()
+			->andReturn( $screen );
+
+		Functions\expect( 'wp_enqueue_style' )
+			->once()
+			->with(
+				'andromeda-2fa-profile',
+				\Mockery::type( 'string' ),
+				array(),
+				\Mockery::type( 'string' )
+			);
+
+		Functions\expect( 'wp_enqueue_script' )
+			->once()
+			->with(
+				'andromeda-2fa-profile',
+				\Mockery::type( 'string' ),
+				array( 'clipboard' ),
+				\Mockery::type( 'string' ),
+				true
+			);
+
+		Functions\when( 'plugins_url' )->returnArg();
+
+		$this->user_settings->enqueue_profile_scripts();
+	}
+
+	public function test_enqueue_profile_scripts_does_not_enqueue_on_other_screens() {
+		$screen = (object) [ 'id' => 'dashboard' ];
+
+		Functions\expect( 'get_current_screen' )
+			->once()
+			->andReturn( $screen );
+
+		Functions\expect( 'wp_enqueue_style' )->never();
+		Functions\expect( 'wp_enqueue_script' )->never();
+
+		$this->user_settings->enqueue_profile_scripts();
+	}
+
+	public function test_enqueue_profile_scripts_does_not_enqueue_when_no_screen() {
+		Functions\expect( 'get_current_screen' )
+			->once()
+			->andReturn( null );
+
+		Functions\expect( 'wp_enqueue_style' )->never();
+		Functions\expect( 'wp_enqueue_script' )->never();
+
+		$this->user_settings->enqueue_profile_scripts();
 	}
 }

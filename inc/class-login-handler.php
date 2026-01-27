@@ -47,6 +47,13 @@ class LoginHandler {
 	const COOKIE_NAME = 'andromeda_2fa_token';
 
 	/**
+	 * Flag to track if 2FA was verified in this request.
+	 *
+	 * @var bool
+	 */
+	private $verified_this_request = false;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param TotpManager          $totp_manager  TOTP Manager instance.
@@ -58,9 +65,32 @@ class LoginHandler {
 		$this->user_settings    = $user_settings;
 		$this->recovery_manager = $recovery_manager ?? new RecoveryManager();
 
+		add_filter( 'authenticate', array( $this, 'handle_2fa_verification' ), 10, 3 );
 		add_filter( 'authenticate', array( $this, 'check_2fa_required' ), 30, 3 );
 		add_action( 'login_form', array( $this, 'render_2fa_field' ) );
 		add_action( 'login_enqueue_scripts', array( $this, 'enqueue_login_scripts' ) );
+	}
+
+	/**
+	 * Handle 2FA verification before WordPress credential check.
+	 *
+	 * @param \WP_User|\WP_Error|null $user     User object or error.
+	 *
+	 * @return \WP_User|\WP_Error|null
+	 */
+	public function handle_2fa_verification( $user ) {
+		$auth_data = $this->get_auth_data();
+
+		if ( ! $auth_data ) {
+			return $user;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in verify_2fa_code.
+		if ( ! isset( $_POST['andromeda_2fa_code'] ) ) {
+			return $user;
+		}
+
+		return $this->verify_2fa_code( $auth_data );
 	}
 
 	/**
@@ -83,14 +113,12 @@ class LoginHandler {
 	 *
 	 * @param int    $user_id  User ID.
 	 * @param string $username Username.
-	 * @param string $password Password.
 	 */
-	private function store_auth_data( $user_id, $username, $password ) {
+	private function store_auth_data( $user_id, $username ) {
 		$token = $this->get_session_token();
 		$data  = array(
 			'user_id'  => $user_id,
 			'username' => $username,
-			'password' => $password,
 		);
 		set_transient( self::TRANSIENT_PREFIX . $token, $data, 600 );
 	}
@@ -138,10 +166,9 @@ class LoginHandler {
 	 *
 	 * @param \WP_User|\WP_Error|null $user     User object or error.
 	 * @param string                  $username Username.
-	 * @param string                  $password Password.
 	 * @return \WP_User|\WP_Error
 	 */
-	public function check_2fa_required( $user, $username, $password ) {
+	public function check_2fa_required( $user, $username ) {
 		if ( is_wp_error( $user ) ) {
 			return $user;
 		}
@@ -150,19 +177,22 @@ class LoginHandler {
 			return $user;
 		}
 
-		$auth_data = $this->get_auth_data();
-		if ( $auth_data ) {
-			return $this->verify_2fa_code( $auth_data );
+		if ( $this->verified_this_request ) {
+			return $user;
+		}
+
+		if ( $this->get_auth_data() ) {
+			return $user;
 		}
 
 		if ( ! $this->user_settings->is_enabled_for_user( $user->ID ) ) {
 			return $user;
 		}
 
-		$this->store_auth_data( $user->ID, $username, $password );
+		$this->store_auth_data( $user->ID, $username );
 
 		wp_safe_redirect( add_query_arg( 'andromeda_2fa', '1', wp_login_url() ) );
-		exit;
+		exit; // @codeCoverageIgnore
 	}
 
 	/**
@@ -201,6 +231,7 @@ class LoginHandler {
 
 		if ( $this->totp_manager->verify_code( $secret, $code ) ) {
 			$this->clear_auth_data();
+			$this->verified_this_request = true;
 
 			$user = get_user_by( 'id', $user_id );
 			if ( ! $user ) {
@@ -212,6 +243,7 @@ class LoginHandler {
 
 		if ( $this->recovery_manager && $this->recovery_manager->consume_recovery_code( (int) $user_id, (string) $code ) ) {
 			$this->clear_auth_data();
+			$this->verified_this_request = true;
 
 			$user = get_user_by( 'id', $user_id );
 			if ( ! $user ) {
@@ -221,7 +253,6 @@ class LoginHandler {
 			return $user;
 		}
 
-		// Both TOTP and recovery code failed.
 		return new \WP_Error(
 			'2fa_invalid_code',
 			sprintf(
@@ -236,14 +267,11 @@ class LoginHandler {
 	 * Render 2FA code input field on login form.
 	 */
 	public function render_2fa_field() {
-		if ( ! $this->is_2fa_mode() ) {
-			return;
-		}
+		if ( ! $this->is_2fa_mode() ) return;
 
 		$auth_data = $this->get_auth_data();
 		?>
 		<input type="hidden" name="log" value="<?php echo esc_attr( $auth_data['username'] ); ?>" autocomplete="username" />
-		<input type="hidden" name="pwd" value="<?php echo esc_attr( $auth_data['password'] ); ?>" autocomplete="current-password" />
 		<?php wp_nonce_field( 'andromeda_2fa_verify', 'andromeda_2fa_nonce' ); ?>
 		
 		<p class="andromeda-2fa-info">
@@ -276,71 +304,19 @@ class LoginHandler {
 	public function enqueue_login_scripts() {
 		if ( ! $this->is_2fa_mode() ) return;
 
-		?>
-		<style>
-			#loginform > p:not(.andromeda-2fa-code-field):not(.submit):not(.andromeda-2fa-info),
-			#loginform .user-pass-wrap,
-			#loginform .forgetmenot {
-				display: none !important;
-			}
-			
-			#andromeda_2fa_code {
-				font-size: 24px;
-				text-align: center;
-				letter-spacing: 0.5em;
-				padding: 8px;
-				font-family: monospace;
-			}
-			
-			#andromeda_2fa_code:focus {
-				border-color: #2271b1;
-				box-shadow: 0 0 0 1px #2271b1;
-			}
-			
-			#login_error,
-			.message {
-				margin-bottom: 20px;
-			}
+		wp_enqueue_style(
+			'andromeda-2fa-style',
+			plugins_url( 'src/css/login-style.css', ANDROMEDA_2FA_PLUGIN_FILE ),
+			array(),
+			ANDROMEDA_2FA_VERSION
+		);
 
-			#loginform input[type="hidden"] {
-				position: absolute;
-				left: -9999px;
-				width: 1px;
-				height: 1px;
-			}
-
-			.andromeda-2fa-info {
-				margin-bottom: 20px !important;
-			}
-		</style>
-		
-		<script>
-			const handle2FA = () => {
-				const input = document.querySelector('#andromeda_2fa_code');
-				if (!input) return;
-				
-				input.focus();
-				
-				input.addEventListener('input', (event) => {
-					const value = event.target.value;
-
-					if (value.length === 6 && /^\d{6}$/.test(value)) {
-						setTimeout(() => {
-							document.querySelector('#loginform').submit();
-						}, 300);
-					}
-					
-					const normalizedValue = value.replace(/[^A-Za-z0-9]/g, '');
-					if (normalizedValue.length === 12 && /^[A-Za-z0-9]{12}$/.test(normalizedValue)) {
-						setTimeout(() => {
-							document.querySelector('#loginform').submit();
-						}, 300);
-					}
-				});
-			};
-
-			document.addEventListener('DOMContentLoaded', handle2FA);
-		</script>
-		<?php
+		wp_enqueue_script(
+			'andromeda-2fa-script',
+			plugins_url( 'src/js/login-script.js', ANDROMEDA_2FA_PLUGIN_FILE ),
+			array(),
+			ANDROMEDA_2FA_VERSION,
+			true
+		);
 	}
 }

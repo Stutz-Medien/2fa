@@ -1,0 +1,77 @@
+.andromeda-2fa-qr-code {
+    background: white;
+    padding: 20px;
+    display: inline-block;
+    border: 1px solid #ddd;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+.andromeda-2fa-secret-key {
+    font-size: 14px;
+    padding: 5px 8px;
+    background: #f0f0f0;
+    border-radius: 3px;
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 1px;
+}
+
+.andromeda-2fa-recovery-codes {
+    margin: 1.5em 0;
+    padding: 20px;
+    background: #fff;
+    border: 2px solid #d63638;
+    border-radius: 4px;
+}
+
+.andromeda-2fa-recovery-codes h3 {
+    margin-top: 0;
+    color: #d63638;
+}
+
+.andromeda-2fa-warning {
+    padding: 12px;
+    background: #fcf0f1;
+    border-left: 4px solid #d63638;
+    margin: 10px 0 20px 0;
+    font-weight: 500;
+}
+
+.andromeda-2fa-codes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.andromeda-2fa-code-item {
+    background: #2c3338;
+    color: #50fa7b;
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-align: center;
+    display: block;
+    border: 1px solid #3c434a;
+}
+
+.andromeda-2fa-actions {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #dcdcde;
+}
+
+.andromeda-2fa-actions .button {
+    margin-right: 10px;
+}
+
+.andromeda-2fa-actions .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    vertical-align: text-top;
+    margin-right: 4px;
+}

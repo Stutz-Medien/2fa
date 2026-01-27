@@ -129,6 +129,8 @@ class UserSettings {
 	 * @param \WP_User $user The user object.
 	 */
 	public function render_user_profile_fields( $user ) {
+		if ( get_current_user_id() !== $user->ID ) return;
+
 		$is_enabled = $this->is_enabled_for_user( $user->ID );
 		$secret     = $this->get_user_secret( $user->ID );
 
@@ -149,9 +151,9 @@ class UserSettings {
 				<th scope="row"><?php esc_html_e( 'Enable 2FA', 'andromeda-2fa' ); ?></th>
 				<td>
 					<label>
-						<input type="checkbox" 
-								name="andromeda_2fa_enabled" 
-								value="1" 
+						<input type="checkbox"
+								name="andromeda_2fa_enabled"
+								value="1"
 								<?php checked( $is_enabled ); ?> />
 						<?php esc_html_e( 'Enable Two-Factor Authentication for my account', 'andromeda-2fa' ); ?>
 					</label>
@@ -177,10 +179,10 @@ class UserSettings {
 			<tr>
 				<th scope="row"><?php esc_html_e( 'Verify Setup', 'andromeda-2fa' ); ?></th>
 				<td>
-					<input type="text" 
-							name="andromeda_2fa_verify_code" 
-							class="regular-text" 
-							maxlength="6" 
+					<input type="text"
+							name="andromeda_2fa_verify_code"
+							class="regular-text"
+							maxlength="6"
 							pattern="[0-9]{6}"
 							placeholder="<?php esc_attr_e( 'Enter 6-digit code', 'andromeda-2fa' ); ?>" />
 					<p class="description">
@@ -246,6 +248,8 @@ class UserSettings {
 	 * @param int $user_id User ID.
 	 */
 	public function save_user_profile_fields( $user_id ) {
+		if ( get_current_user_id() !== $user_id ) return;
+
 		if ( ! \andromeda_2fa_verify_nonce( 'andromeda_2fa_nonce', 'andromeda_2fa_settings' ) ) return;
 
 		if ( ! current_user_can( 'edit_user', $user_id ) ) return;
@@ -340,138 +344,20 @@ class UserSettings {
 	public function enqueue_profile_scripts() {
 		$screen = get_current_screen();
 		if ( ! $screen || ! in_array( $screen->id, array( 'profile', 'user-edit' ), true ) ) return;
-		?>
-		<style>
-			.andromeda-2fa-qr-code {
-				background: white;
-				padding: 20px;
-				display: inline-block;
-				border: 1px solid #ddd;
-				margin: 10px 0;
-				border-radius: 4px;
-			}
 
-			.andromeda-2fa-secret-key {
-				font-size: 14px;
-				padding: 5px 8px;
-				background: #f0f0f0;
-				border-radius: 3px;
-				font-family: 'Courier New', Courier, monospace;
-				letter-spacing: 1px;
-			}
+		wp_enqueue_style(
+			'andromeda-2fa-profile',
+			plugins_url( 'src/css/admin-style.css', ANDROMEDA_2FA_PLUGIN_FILE ),
+			array(),
+			ANDROMEDA_2FA_VERSION
+		);
 
-			.andromeda-2fa-recovery-codes {
-				margin: 1.5em 0;
-				padding: 20px;
-				background: #fff;
-				border: 2px solid #d63638;
-				border-radius: 4px;
-			}
-
-			.andromeda-2fa-recovery-codes h3 {
-				margin-top: 0;
-				color: #d63638;
-			}
-
-			.andromeda-2fa-warning {
-				padding: 12px;
-				background: #fcf0f1;
-				border-left: 4px solid #d63638;
-				margin: 10px 0 20px 0;
-				font-weight: 500;
-			}
-
-			.andromeda-2fa-codes-grid {
-				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-				gap: 12px;
-				margin: 20px 0;
-			}
-
-			.andromeda-2fa-code-item {
-				background: #2c3338;
-				color: #50fa7b;
-				padding: 12px 16px;
-				border-radius: 4px;
-				font-family: monospace;
-				font-size: 14px;
-				font-weight: 600;
-				letter-spacing: 1px;
-				text-align: center;
-				display: block;
-				border: 1px solid #3c434a;
-			}
-
-			.andromeda-2fa-actions {
-				margin-top: 20px;
-				padding-top: 20px;
-				border-top: 1px solid #dcdcde;
-			}
-
-			.andromeda-2fa-actions .button {
-				margin-right: 10px;
-			}
-
-			.andromeda-2fa-actions .dashicons {
-				font-size: 16px;
-				width: 16px;
-				height: 16px;
-				vertical-align: text-top;
-				margin-right: 4px;
-			}
-		</style>
-
-		<script>
-			const copyToClipboard = (text) => {
-				if (navigator.clipboard?.writeText) {
-					return navigator.clipboard.writeText(text).catch(() => {
-						copyToClipboardFallback(text);
-					});
-				}
-				
-				copyToClipboardFallback(text);
-			};
-
-			const copyToClipboardFallback = (text) => {
-				const textarea = document.createElement('textarea');
-				textarea.value = text;
-				document.body.appendChild(textarea);
-				textarea.select();
-				
-				try {
-					document.execCommand('copy');
-				} catch  {
-					// Silent fail
-				}
-				
-				document.body.removeChild(textarea);
-			};
-
-			const showCopySuccess = (button) => {
-				const originalText = button.textContent;
-				button.textContent = '✓ Copied!';
-				button.disabled = true;
-				
-				setTimeout(() => {
-					button.textContent = originalText;
-					button.disabled = false;
-				}, 2000);
-			};
-
-			const handleRecoveryCodes = () => {
-				const button = document.querySelector('.andromeda-copy-codes');
-				if (!button) return;
-
-				const clipboardText = button.getAttribute('data-clipboard-text') || '';
-
-				button.addEventListener('click', () => {
-					copyToClipboard(clipboardText);
-					showCopySuccess(button);
-				});
-			};
-
-			document.addEventListener('DOMContentLoaded', handleRecoveryCodes);
-		</script>
-		<?php
+		wp_enqueue_script(
+			'andromeda-2fa-profile',
+			plugins_url( 'src/js/admin-script.js', ANDROMEDA_2FA_PLUGIN_FILE ),
+			array( 'clipboard' ),
+			ANDROMEDA_2FA_VERSION,
+			true
+		);
 	}
 }
