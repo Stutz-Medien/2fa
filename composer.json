@@ -4,6 +4,12 @@
     "description": "Authenticator compatible 2FA for WordPress",
     "version": "26.0.0",
     "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Andrin Haldner",
+            "homepage": "https://github.com/AHaldner"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Andromeda\\TwoFactorAuth\\": "inc/"
