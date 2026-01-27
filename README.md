@@ -96,4 +96,4 @@ vendor/bin/phpunit -v
 
 ## 📄 License
 
-This project is released under the [MIT License](https://opensource.org/licenses/MIT). See `LICENSE` file for details.
+This project is licensed under the GNU General Public License v2.0 - see the [LICENSE](LICENSE) file for details.

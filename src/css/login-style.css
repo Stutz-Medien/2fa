@@ -1,0 +1,35 @@
+#loginform
+    > p:not(.andromeda-2fa-code-field):not(.submit):not(.andromeda-2fa-info),
+#loginform .user-pass-wrap,
+#loginform .forgetmenot {
+    display: none !important;
+}
+
+#andromeda_2fa_code {
+    font-size: 24px;
+    text-align: center;
+    letter-spacing: 0.5em;
+    padding: 8px;
+    font-family: monospace;
+}
+
+#andromeda_2fa_code:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+}
+
+#login_error,
+.message {
+    margin-bottom: 20px;
+}
+
+#loginform input[type='hidden'] {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+}
+
+.andromeda-2fa-info {
+    margin-bottom: 20px !important;
+}

@@ -221,7 +221,6 @@ class LoginHandler {
 			return $user;
 		}
 
-		// Both TOTP and recovery code failed.
 		return new \WP_Error(
 			'2fa_invalid_code',
 			sprintf(
@@ -276,71 +275,19 @@ class LoginHandler {
 	public function enqueue_login_scripts() {
 		if ( ! $this->is_2fa_mode() ) return;
 
-		?>
-		<style>
-			#loginform > p:not(.andromeda-2fa-code-field):not(.submit):not(.andromeda-2fa-info),
-			#loginform .user-pass-wrap,
-			#loginform .forgetmenot {
-				display: none !important;
-			}
-			
-			#andromeda_2fa_code {
-				font-size: 24px;
-				text-align: center;
-				letter-spacing: 0.5em;
-				padding: 8px;
-				font-family: monospace;
-			}
-			
-			#andromeda_2fa_code:focus {
-				border-color: #2271b1;
-				box-shadow: 0 0 0 1px #2271b1;
-			}
-			
-			#login_error,
-			.message {
-				margin-bottom: 20px;
-			}
+		wp_enqueue_style(
+			'andromeda-2fa-style',
+			plugins_url( 'src/css/login-style.css', ANDROMEDA_2FA_PLUGIN_FILE ),
+			array(),
+			ANDROMEDA_2FA_VERSION
+		);
 
-			#loginform input[type="hidden"] {
-				position: absolute;
-				left: -9999px;
-				width: 1px;
-				height: 1px;
-			}
-
-			.andromeda-2fa-info {
-				margin-bottom: 20px !important;
-			}
-		</style>
-		
-		<script>
-			const handle2FA = () => {
-				const input = document.querySelector('#andromeda_2fa_code');
-				if (!input) return;
-				
-				input.focus();
-				
-				input.addEventListener('input', (event) => {
-					const value = event.target.value;
-
-					if (value.length === 6 && /^\d{6}$/.test(value)) {
-						setTimeout(() => {
-							document.querySelector('#loginform').submit();
-						}, 300);
-					}
-					
-					const normalizedValue = value.replace(/[^A-Za-z0-9]/g, '');
-					if (normalizedValue.length === 12 && /^[A-Za-z0-9]{12}$/.test(normalizedValue)) {
-						setTimeout(() => {
-							document.querySelector('#loginform').submit();
-						}, 300);
-					}
-				});
-			};
-
-			document.addEventListener('DOMContentLoaded', handle2FA);
-		</script>
-		<?php
+		wp_enqueue_script(
+			'andromeda-2fa-script',
+			plugins_url( 'src/js/login-script.js', ANDROMEDA_2FA_PLUGIN_FILE ),
+			array(),
+			ANDROMEDA_2FA_VERSION,
+			true
+		);
 	}
 }

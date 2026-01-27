@@ -54,28 +54,20 @@ class Plugin {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->define_constants();
 		$this->load_dependencies();
 		$this->initialize_components();
-	}
-
-	/**
-	 * Define plugin constants.
-	 */
-	private function define_constants() {
-		define( 'ANDROMEDA_2FA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 	}
 
 	/**
 	 * Load required dependencies.
 	 */
 	private function load_dependencies() {
-		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'helpers.php';
-		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'class-totp-manager.php';
-		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'class-qr-code-generator.php';
-		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'class-recovery-manager.php';
-		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'class-user-settings.php';
-		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'class-login-handler.php';
+		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/helpers.php';
+		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/class-totp-manager.php';
+		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/class-qr-code-generator.php';
+		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/class-recovery-manager.php';
+		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/class-user-settings.php';
+		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/class-login-handler.php';
 	}
 
 	/**

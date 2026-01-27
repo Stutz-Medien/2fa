@@ -19,6 +19,10 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+define( 'ANDROMEDA_2FA_PLUGIN_FILE', __FILE__ );
+define( 'ANDROMEDA_2FA_PLUGIN_DIR', plugin_dir_path( ANDROMEDA_2FA_PLUGIN_FILE ) );
+define( 'ANDROMEDA_2FA_VERSION', '26.0.0' );
+
 $autoload_path = __DIR__ . '/vendor/autoload.php';
 if ( file_exists( $autoload_path ) ) {
 	require_once $autoload_path;
