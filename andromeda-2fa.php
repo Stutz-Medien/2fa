@@ -28,7 +28,7 @@ if ( file_exists( $autoload_path ) ) {
 	require_once $autoload_path;
 }
 
-require_once __DIR__ . '/inc/class-plugin.php';
+require_once __DIR__ . '/inc/Plugin.php';
 
 add_action(
 	'plugins_loaded',
