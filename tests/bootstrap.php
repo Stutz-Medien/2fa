@@ -11,7 +11,7 @@ namespace {
 	define( 'ABSPATH', '/tmp/wordpress/' );
 	define( 'ANDROMEDA_2FA_PLUGIN_FILE', dirname( __DIR__ ) . '/andromeda-2fa.php' );
 	define( 'ANDROMEDA_2FA_PLUGIN_DIR', dirname( __DIR__ ) . '/' );
-	define( 'ANDROMEDA_2FA_VERSION', '26.0.0' );
+	define( 'ANDROMEDA_2FA_VERSION', '26.0.1' );
 
 	if ( ! defined( 'COOKIEPATH' ) ) {
 		define( 'COOKIEPATH', '/' );

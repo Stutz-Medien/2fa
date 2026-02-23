@@ -10,7 +10,7 @@
  * Plugin Name:   Andromeda Two‑Factor Authentication
  * Plugin URI:    https://github.com/Stutz-Medien/2fa
  * Description:   Adds Two Factor Authentication (2FA) to your WordPress login process to enhance security.
- * Version:       26.0.0
+ * Version:       26.0.1
  * Author:        Stutz Medien AG
  * Author URI:    https://stutz-medien.ch/
  * Text Domain:   andromeda-2fa
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 define( 'ANDROMEDA_2FA_PLUGIN_FILE', __FILE__ );
 define( 'ANDROMEDA_2FA_PLUGIN_DIR', plugin_dir_path( ANDROMEDA_2FA_PLUGIN_FILE ) );
-define( 'ANDROMEDA_2FA_VERSION', '26.0.0' );
+define( 'ANDROMEDA_2FA_VERSION', '26.0.1' );
 
 $autoload_path = __DIR__ . '/vendor/autoload.php';
 if ( file_exists( $autoload_path ) ) {
