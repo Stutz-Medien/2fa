@@ -273,21 +273,21 @@ class LoginHandler {
 		?>
 		<input type="hidden" name="log" value="<?php echo esc_attr( $auth_data['username'] ); ?>" autocomplete="username" />
 		<?php wp_nonce_field( 'andromeda_2fa_verify', 'andromeda_2fa_nonce' ); ?>
-		
+
 		<p class="andromeda-2fa-info">
 			<strong><?php esc_html_e( 'Two-Factor Authentication', 'andromeda-2fa' ); ?></strong><br>
 			<?php esc_html_e( 'Please enter your authentication code or a recovery code.', 'andromeda-2fa' ); ?>
 		</p>
-		
+
 		<p class="andromeda-2fa-code-field">
 			<label for="andromeda_2fa_code">
 				<?php esc_html_e( 'Authentication Code', 'andromeda-2fa' ); ?>
 			</label>
-			<input type="text" 
-				name="andromeda_2fa_code" 
-				id="andromeda_2fa_code" 
-				class="input" 
-				maxlength="36" 
+			<input type="text"
+				name="andromeda_2fa_code"
+				id="andromeda_2fa_code"
+				class="input"
+				maxlength="36"
 				pattern="(\\d{6})|([A-Za-z0-9-]{12,36})"
 				autocomplete="one-time-code"
 				inputmode="text"

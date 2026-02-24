@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "${script_dir}/.." && pwd)"
+cd "$repo_root"
+
+buffer_path="${1:-stdin.php}"
+
+ext="${buffer_path##*.}"
+[[ "$ext" == "$buffer_path" ]] && ext="php"
+
+# PHPCBF in this project fails for absolute /private/... temp paths because
+# phpcs.xml sets a basepath; use a repo-local relative path instead.
+tmp_dir=".tmp/zed-phpcbf"
+mkdir -p "$tmp_dir"
+
+# BSD mktemp requires XXXXXX at end of template.
+tmp_base="$(mktemp "$tmp_dir/zed-phpcbf.XXXXXX")"
+tmp="${tmp_base}.${ext}"
+mv "$tmp_base" "$tmp"
+
+trap 'rm -f "$tmp"' EXIT
+
+# Read Zed buffer from stdin into temp file
+cat > "$tmp"
+
+# Run PHPCBF on the temp file (in place), suppress noise
+set +e
+vendor/bin/phpcbf -q --standard=phpcs.xml "$tmp" >/dev/null 2>&1
+rc=$?
+set -e
+
+# 0 = no changes, 1 = fixed (success), 2+ = actual failure
+if [[ "$rc" -ge 2 ]]; then
+  # re-run once without silencing so you get a real error in Zed logs
+  vendor/bin/phpcbf --standard=phpcs.xml "$tmp" 1>&2 || true
+  exit "$rc"
+fi
+
+# Output only the formatted PHP source
+cat "$tmp"
+exit 0

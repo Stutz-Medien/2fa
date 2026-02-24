@@ -80,13 +80,18 @@
 		</properties>
 	</rule>
 
-	<!-- Enforce PHP 8.3 compatibility. -->
-	<config name="testVersion" value="8.3-"/>
+	<!-- Enforce PHP 8.4 compatibility. -->
+	<config name="testVersion" value="8.4-"/>
 	<rule ref="PHPCompatibility">
 		<!-- Exclude PHP 8+ features we're intentionally using. -->
 		<exclude name="PHPCompatibility.FunctionDeclarations.NewClosure.Found"/>
 		<exclude name="PHPCompatibility.FunctionUse.NewFunctions.str_containsFound"/>
 		<exclude name="PHPCompatibility.FunctionUse.NewFunctions.str_starts_withFound"/>
 		<exclude name="PHPCompatibility.FunctionUse.NewFunctions.str_ends_withFound"/>
+	</rule>
+	
+	<!-- Relax some rules for inc/ directory. -->
+	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+		<exclude-pattern>*/inc/*</exclude-pattern>
 	</rule>
 </ruleset>
