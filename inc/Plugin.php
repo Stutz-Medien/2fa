@@ -63,11 +63,11 @@ class Plugin {
 	 */
 	private function load_dependencies() {
 		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/helpers.php';
-		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/class-totp-manager.php';
-		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/class-qr-code-generator.php';
-		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/class-recovery-manager.php';
-		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/class-user-settings.php';
-		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/class-login-handler.php';
+		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/TotpManager.php';
+		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/QrCodeGenerator.php';
+		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/RecoveryManager.php';
+		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/UserSettings.php';
+		require_once ANDROMEDA_2FA_PLUGIN_DIR . 'inc/LoginHandler.php';
 	}
 
 	/**

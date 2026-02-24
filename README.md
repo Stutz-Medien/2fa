@@ -49,12 +49,12 @@ composer require stutzmedien/2fa
 andromeda-2fa.php          # Plugin bootstrap
 inc/                       # Core plugin classes
 ├── helpers.php
-├── class-user-settings.php
-├── class-totp-manager.php  
-├── class-qr-code-generator.php
-├── class-recovery-manager.php
-└── class-login-handler.php
-└── class-plugin.php
+├── UserSettings.php
+├── TotpManager.php  
+├── QrCodeGenerator.php
+├── RecoveryManager.php
+├── LoginHandler.php
+└── Plugin.php
 src/                       # Admin/login assets
 ├── css/
 └── js/

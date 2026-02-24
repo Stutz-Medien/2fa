@@ -11,7 +11,7 @@ namespace {
 	define( 'ABSPATH', '/tmp/wordpress/' );
 	define( 'ANDROMEDA_2FA_PLUGIN_FILE', dirname( __DIR__ ) . '/andromeda-2fa.php' );
 	define( 'ANDROMEDA_2FA_PLUGIN_DIR', dirname( __DIR__ ) . '/' );
-	define( 'ANDROMEDA_2FA_VERSION', '26.0.0' );
+	define( 'ANDROMEDA_2FA_VERSION', '26.0.1' );
 
 	if ( ! defined( 'COOKIEPATH' ) ) {
 		define( 'COOKIEPATH', '/' );
@@ -95,12 +95,12 @@ namespace {
 	}
 
 	require_once dirname( __DIR__ ) . '/inc/helpers.php';
-	require_once dirname( __DIR__ ) . '/inc/class-totp-manager.php';
-	require_once dirname( __DIR__ ) . '/inc/class-qr-code-generator.php';
-	require_once dirname( __DIR__ ) . '/inc/class-recovery-manager.php';
-	require_once dirname( __DIR__ ) . '/inc/class-user-settings.php';
-	require_once dirname( __DIR__ ) . '/inc/class-login-handler.php';
-	require_once dirname( __DIR__ ) . '/inc/class-plugin.php';
+	require_once dirname( __DIR__ ) . '/inc/TotpManager.php';
+	require_once dirname( __DIR__ ) . '/inc/QrCodeGenerator.php';
+	require_once dirname( __DIR__ ) . '/inc/RecoveryManager.php';
+	require_once dirname( __DIR__ ) . '/inc/UserSettings.php';
+	require_once dirname( __DIR__ ) . '/inc/LoginHandler.php';
+	require_once dirname( __DIR__ ) . '/inc/Plugin.php';
 }
 
 namespace Andromeda\TwoFactorAuth {
